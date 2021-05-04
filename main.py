@@ -75,26 +75,31 @@ print(colored("On completion go to TFE and confirm.", "green"))
 
 print(colored("checking if main workspace applied...", "red"))
 
+count = 0
 wait = time.sleep(60)
 status = workspace.get_current_state_version()
 while status == None:
     status = workspace.get_current_state_version()
     print(colored("applying...", "magenta"))
     wait = time.sleep(60)
+    count +=1
+    if count >= 60:
+        break
 print(colored("Workspace applied, queing Plans:", "yellow"))
 
-
-organizations = tfe_client.list_organizations()
-for o in organizations:
-    print(colored(f'Organization Name: ${o.name}', "cyan"))
-    org_current = tfe_client.set_organization(id=o.name)
-    work = org_current.list_workspaces()
-    for w in work:
-        print(colored(f'Workspace Name: ${w.name}', "", "magenta"))
-        print(colored(f'Workspace ID: ${w.id}', "blue"))
-        if w.name != "workspace_a":
-            sub_workspace = org_current.get_workspace(w.name)
-            if sub_workspace.description != None:
-                sub_workspace.run('ran by test bootstrap')
-            
-print(colored("Plans queued.", "green"))
+if count >= 60:
+    pass
+else:
+    organizations = tfe_client.list_organizations()
+    for o in organizations:
+        print(colored(f'Organization Name: ${o.name}', "cyan"))
+        org_current = tfe_client.set_organization(id=o.name)
+        work = org_current.list_workspaces()
+        for w in work:
+            print(colored(f'Workspace Name: ${w.name}', "", "magenta"))
+            print(colored(f'Workspace ID: ${w.id}', "blue"))
+            if w.name != "workspace_a":
+                sub_workspace = org_current.get_workspace(w.name)
+                if sub_workspace.description != None:
+                    sub_workspace.run('ran by test bootstrap')       
+    print(colored("Plans queued.", "green"))
